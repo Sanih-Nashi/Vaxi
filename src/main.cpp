@@ -4,7 +4,6 @@
 
 int main()
 {
-  char Input[MAX_INPUT];
   InitTermianal();
   while(true)
   { 

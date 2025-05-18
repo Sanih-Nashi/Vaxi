@@ -17,11 +17,9 @@ add_executable(${PROJECT_NAME} src/main.cpp src/init.cpp)
 
 # Apply the compile options (target-specific)
 target_compile_options(${PROJECT_NAME} PRIVATE 
-    -fsanitize=address  # Enable AddressSanitizer
     -fdiagnostics-color=always  # Enable colored diagnostics (useful for readability)
     -O3
     -std=c++23
 )
 
 # Optionally link the AddressSanitizer runtime (needed for AddressSanitizer to work)
-target_link_libraries(${PROJECT_NAME} PRIVATE -fsanitize=address)

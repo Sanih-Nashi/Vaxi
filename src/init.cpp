@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <filesystem>
+#include <iostream>
 #include <cstdlib>
 #include <cstring>
 
@@ -8,9 +9,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#elif defined(WIN32) || defined(WIN64)
+#elif defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
 
-#include <io.h>
 #include <windows.h>
 
 #endif
@@ -26,13 +26,14 @@ void InitTermianal()
 #ifdef __unix__
 
   User = std::getenv("USER");
+  strcpy(CWD, std::filesystem::current_path().c_str());
 
-#elif defined(WIN32) || defined(WIN64)
+#elif defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
 
   User = std::getenv("USERNAME");
+  strcpy(CWD, std::filesystem::current_path().string().c_str());
 
-#endif
-  strcpy(CWD, std::filesystem::current_path().c_str());
+  #endif
 
 
 }
@@ -40,8 +41,15 @@ void InitTermianal()
 void PrintPrompt()
 {
 
+#ifdef __unix__
+
   strcpy(CWD, std::filesystem::current_path().c_str());
 
+#elif defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
+
+  strcpy(CWD, std::filesystem::current_path().string().c_str());
+
+#endif
 
   printf("\n\033[34m%s\033[0m&\033[34mVx\033[0m::\n::\033[32m", User);
 
@@ -56,10 +64,15 @@ void PrintPrompt()
     }
 
 
-#elif defined(WIN32) || defined(WIN64)
+#elif defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
     if (CWD[i] == '\\')
     {
-      printf("\033[0m\\\033[35m");
+      printf("\033[0m\\\033[32m");
+      continue;
+    }
+    if (CWD[i] == ':')
+    {
+      printf("\033[0m:\033[32m");
       continue;
     }
 #endif
@@ -138,9 +151,7 @@ void Execute()
 
     execvp(token[0], token);
 
-    char str[MAX_INPUT];
-    sprintf(str, "Vx: %s", token[0]);
-    perror(str);
+    fprintf(stderr, "Vx: cannot identify the command %s", token[0]);
     exit(EXIT_FAILURE);
   } 
   else {
@@ -149,54 +160,40 @@ void Execute()
       waitpid(pid, &status, 0);
   }
 
-}
 
 
-#elif defined(WIN32) || defined(WIN64)
+#elif defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
 
-
-void Execute();
-{
-  char* cmdLineStr = buildCommandLine(argv);
-  if (!cmdLineStr) {
-      fprintf(stderr, "Failed to build command line\n");
-      return -1;
-  }
-
-  STARTUPINFOA si = {0};
-  PROCESS_INFORMATION pi = {0};
-  si.cb = sizeof(si);
+  STARTUPINFOA si = { sizeof(STARTUPINFOA) };
+  PROCESS_INFORMATION pi = { 0 };
 
   BOOL success = CreateProcessA(
-      NULL,               // No module name
-      cmdLineStr,          // Command line string
-      NULL, NULL,          // Security attributes
-      FALSE,               // Inherit handles
-      0,                   // Creation flags
-      NULL, NULL,         // Environment and current directory
-      &si, &pi            // Pointers to structures
+    NULL,
+    Input,
+    NULL,
+    NULL,
+    FALSE,
+    0,
+    NULL,
+    NULL,
+    &si,
+    &pi
   );
 
-  if (!success) {
-      fprintf(stderr, "CreateProcess failed: error %lu\n", GetLastError());
-      free(cmdLineStr);    // Assuming buildCommandLine allocates memory
-      return -1;
+  if (!success)
+  {
+    fprintf(stderr, "Vx: cannot identify the command %s", token[0]);
+    return;
   }
 
-  // Wait for process to complete
+  // Wait for process to finish
   WaitForSingleObject(pi.hProcess, INFINITE);
-
-  DWORD exitCode = 0;
-  GetExitCodeProcess(pi.hProcess, &exitCode);
 
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
-  free(cmdLineStr);        // Free the allocated command line string
-
-}
 
 #endif
 
 
-
+}
 

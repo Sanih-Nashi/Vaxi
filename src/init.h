@@ -5,6 +5,7 @@
 inline char* token[MAX_INPUT];
 inline int argc;
 inline char* User;
+inline char Input[MAX_INPUT];
 inline char CWD[MAX_INPUT];
 
 void InitTermianal();
