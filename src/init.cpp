@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <filesystem>
+#include <cstdlib>
+#include <cstring>
 
 #ifdef __unix__
 
@@ -20,32 +19,20 @@
 
 
 
-
-
-char* token[MAX_INPUT];
-int argc;
-char User[MAX_INPUT];
-char CWD[MAX_INPUT];
-
-
-
 void InitTermianal()
 {
   printf("\033[H\033[2J"); //clears screen and puts cursor on top
 
 #ifdef __unix__
 
-  User = getenv("USER");
+  User = std::getenv("USER");
+
 #elif defined(WIN32) || defined(WIN64)
 
-  DWORD size = sizeof(User);
-
-    if (!GetUserName(username, &size))
-      printf("Error getting user name: %ld\n", GetLastError());
+  User = std::getenv("USERNAME");
 
 #endif
-
-  CWD = std::filesystem::filepath();
+  strcpy(CWD, std::filesystem::current_path().c_str());
 
 
 }
@@ -53,26 +40,7 @@ void InitTermianal()
 void PrintPrompt()
 {
 
-    
-#ifdef __unix__
-
-  if (getcwd(CWD, MAX_INPUT) == nullptr)
-  {
-    perror("Vx: Cannot access the the Current Directory");
-    perror("\n    Exiting with the code 1");
-    exit(1);
-  }
-
-#elif defined(WIN32) || defined(WIN64)
-
-  if (_getcwd(CWD, MAX_INPUT) == nullptr)
-  {
-    perror("Vx: Cannot access the the Current Directory");
-    perror("\n    Exiting with the code 1");
-    exit(1);
-  }
-
-#endif
+  strcpy(CWD, std::filesystem::current_path().c_str());
 
 
   printf("\n\033[34m%s\033[0m&\033[34mVx\033[0m::\n::\033[32m", User);
@@ -134,7 +102,7 @@ void Execute()
 {
 
   if (token[0] == NULL)
-  return;
+    return;
 
   else if (strcmp(token[0], "exit") == 0)
     exit(1);
@@ -145,17 +113,13 @@ void Execute()
     if (token[1] == NULL)
       fprintf(stderr, "Vx: NO file name mentioned for cd");
 
-#ifdef __unix__
 
-    else if (chdir(token[1]) != 0)
-      fprintf(stderr, "Vx: cannot cd into %s\n", token[1]);
-      
-#elif defined(WIN32) || defined(WIN64)
-      
-    else if (_chdir(token[1]) != 0)
+    std::error_code ec;
+    std::filesystem::current_path(token[1], ec);
+
+    if (ec)
       fprintf(stderr, "Vx: cannot cd into %s\n", token[1]);
 
-#endif
 
     return;
 
@@ -185,12 +149,13 @@ void Execute()
       waitpid(pid, &status, 0);
   }
 
+}
 
 
 #elif defined(WIN32) || defined(WIN64)
 
 
-void Execute(char** Input);
+void Execute();
 {
   char* cmdLineStr = buildCommandLine(argv);
   if (!cmdLineStr) {
@@ -234,4 +199,4 @@ void Execute(char** Input);
 
 
 
-}
+

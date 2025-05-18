@@ -2,10 +2,10 @@
 
 #define MAX_INPUT 1024
 
-extern char* token[MAX_INPUT];
-extern int argc;
-extern char User[MAX_INPUT];
-extern char CWD[MAX_INPUT];
+inline char* token[MAX_INPUT];
+inline int argc;
+inline char* User;
+inline char CWD[MAX_INPUT];
 
 void InitTermianal();
 void PrintPrompt();
