@@ -1,5 +1,8 @@
 #include "init.h"
-#include <stdio.h>
+#include "input.h"
+#include "process.h"
+
+#include <stdlib.h>
 
 
 int main()
@@ -8,7 +11,8 @@ int main()
   while(true)
   { 
     PrintPrompt();
-    ReadInput(Input, MAX_INPUT);
+    if (ReadInput(Input, MAX_INPUT) == EXIT_FAILURE);
+      continue;
     Parse(Input);
     Execute();
   }

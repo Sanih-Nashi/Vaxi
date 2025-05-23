@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(vx-cross)
+project(vaxi)
 
 message(STATUS "Building ${PROJECT_NAME}")
 
@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_EXTENSIONS OFF)  # Optional: Disable compiler-specific extensions like `gnu++`
 
 # Define your target
-add_executable(${PROJECT_NAME} src/main.cpp src/init.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/init.cpp src/input.cpp src/process.h src/raw_mode.cpp)
 
 # Apply the compile options (target-specific)
 target_compile_options(${PROJECT_NAME} PRIVATE 
