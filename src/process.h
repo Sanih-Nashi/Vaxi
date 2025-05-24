@@ -1,6 +1,8 @@
 #pragma once
 
-inline char* token[MAX_INPUT];
+#include "init.h"
+
+inline char* argv[MAX_INPUT];
 inline int argc;
 
 void Parse(char *Input);

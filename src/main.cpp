@@ -11,7 +11,7 @@ int main()
   while(true)
   { 
     PrintPrompt();
-    if (ReadInput(Input, MAX_INPUT) == EXIT_FAILURE);
+    if (ReadInput(Input, MAX_INPUT) == EXIT_FAILURE)
       continue;
     Parse(Input);
     Execute();

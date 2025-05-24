@@ -3,6 +3,8 @@
 #include "raw_mode.h"
 
 #include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 #include <filesystem>
 #include <iostream>
@@ -31,24 +33,24 @@ void Parse(char* Input)
 void Execute()
 {
 
-  if (token[0] == NULL)
+  if (argv[0] == NULL)
     return;
 
-  if (strcmp(token[0], "exit") == 0)
+  if (strcmp(argv[0], "exit") == 0)
     exit(1);
 
-  else if (strcmp(token[0], "cd") == 0)
+  else if (strcmp(argv[0], "cd") == 0)
   {
 
-    if (token[1] == NULL)
+    if (argv[1] == NULL)
       fprintf(stderr, "Vx: NO file name mentioned for cd");
 
 
     std::error_code ec;
-    std::filesystem::current_path(token[1], ec);
+    std::filesystem::current_path(argv[1], ec);
 
     if (ec)
-      fprintf(stderr, "Vx: cannot cd into %s\n\r", token[1]);
+      fprintf(stderr, "Vx: cannot cd into %s\n\r", argv[1]);
 
 
     return;
@@ -65,9 +67,9 @@ void Execute()
 
   else if (pid == 0) {
 
-    execvp(token[0], token);
+    execvp(argv[0], argv);
 
-    fprintf(stderr, "Vx: cannot identify the command %s", token[0]);
+    fprintf(stderr, "Vx: cannot identify the command %s", argv[0]);
     exit(EXIT_FAILURE);
   } 
   else {
