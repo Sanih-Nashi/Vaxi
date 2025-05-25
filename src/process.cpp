@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 
-
+static char buffer[MAX_INPUT];
 
 void Parse(char* Input)
 {
@@ -20,12 +20,37 @@ void Parse(char* Input)
     return;
 
   argc = 0;
-  argv[argc] = strtok(Input, " ");
-  while (argv[argc] != NULL && argc < MAX_INPUT - 1)
+  
+  int BufferPtr = 0;
+  int BufStrlen;
+  int i = 0;
+  for (; Input[i] != '\0'; i++)
   {
-    argc++;
-    argv[argc] = strtok(NULL, " ");
+    if (Input[i] == ' ')
+    {
+      BufStrlen = strlen(buffer);
+      buffer[BufferPtr] = '\0';
+      if (BufStrlen == 0)
+        continue;
+      argv[argc] = (char*) realloc(argv[argc], BufStrlen);
+      strcpy(argv[argc++], buffer);
+      BufferPtr = 0;
+      continue;
+    }
+
+    buffer[BufferPtr++] = Input[i];
+    
   }
+  BufStrlen = strlen(buffer);
+  buffer[BufferPtr] = '\0';
+  if (BufStrlen != 0)
+  {
+    argv[argc] = (char*) realloc(argv[argc], BufStrlen);
+    strcpy(argv[argc++], buffer);
+  }
+  argv[argc] = NULL;
+
+
 }
 
 
