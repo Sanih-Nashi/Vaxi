@@ -28,8 +28,8 @@ void Parse(char* Input)
   {
     if (Input[i] == ' ')
     {
-      BufStrlen = strlen(buffer);
       buffer[BufferPtr] = '\0';
+      BufStrlen = strlen(buffer);
       if (BufStrlen == 0)
         continue;
       argv[argc] = (char*) realloc(argv[argc], BufStrlen);
@@ -37,6 +37,26 @@ void Parse(char* Input)
       BufferPtr = 0;
       continue;
     }
+
+    else if (Input[i] == '\'')
+    {
+      i++;
+      for (; Input[i] != '\'' && Input[i] != '\0'; i++)
+        buffer[BufferPtr++] = Input[i];
+        
+      continue;
+    }
+
+    else if (Input[i] == '\"')
+    {
+      i++;
+      for (; Input[i] != '\"' && Input[i] != '\0'; i++)
+        buffer[BufferPtr++] = Input[i];
+      continue;
+    }
+
+    else if (Input[i] == '\\')
+      i++;
 
     buffer[BufferPtr++] = Input[i];
     
