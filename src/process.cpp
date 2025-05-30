@@ -1,6 +1,7 @@
 #include "process.h"
 #include "init.h"
 #include "raw_mode.h"
+#include "definitions.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -32,7 +33,7 @@ void Parse(char* Input)
       BufStrlen = strlen(buffer);
       if (BufStrlen == 0)
         continue;
-      argv[argc] = (char*) realloc(argv[argc], BufStrlen);
+      argv[argc] = (char*) realloc(argv[argc], BufStrlen + 1 + 1); // '+ 1' to include the null termination char
       strcpy(argv[argc++], buffer);
       BufferPtr = 0;
       continue;
@@ -65,7 +66,7 @@ void Parse(char* Input)
   buffer[BufferPtr] = '\0';
   if (BufStrlen != 0)
   {
-    argv[argc] = (char*) realloc(argv[argc], BufStrlen);
+    argv[argc] = (char*) realloc(argv[argc], BufStrlen + 1); // + 1 so that in includes the null termination char
     strcpy(argv[argc++], buffer);
   }
   argv[argc] = NULL;
@@ -78,7 +79,7 @@ void Parse(char* Input)
 void Execute()
 {
 
-  if (argv[0] == NULL)
+  if (*argv[0] == '\0')
     return;
 
   if (strcmp(argv[0], "exit") == 0)
@@ -95,7 +96,14 @@ void Execute()
     std::filesystem::current_path(argv[1], ec);
 
     if (ec)
+    {
       fprintf(stderr, "Vx: cannot cd into %s\n\r", argv[1]);
+      return;
+    }
+
+    strcpy(CWD, std::filesystem::current_path().c_str());
+    DirContents.clear();
+    ListDirContents();
 
 
     return;

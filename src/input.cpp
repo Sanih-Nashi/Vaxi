@@ -3,6 +3,10 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include <vector>
+#include <iostream>
+#include <cstring>
+
 
 #include "input.h"
 #include "init.h"
@@ -48,6 +52,7 @@ int ReadInput(char* Input, int MaxLength)
 
     switch (c)
     {
+
       case ENTER_KEY:
       {
         printf("\n\r");
@@ -76,6 +81,31 @@ int ReadInput(char* Input, int MaxLength)
           NoOfCharTyped--;
           break;
         }
+      }
+      case TAB:
+      {
+        Input[NoOfCharTyped] = '\0';
+        char* Last = LastWord(Input);
+        int LastLen = strlen(Last);
+        std::vector<int> Match; // stores the index value which matches
+        if (LastLen == 0)
+          break;
+        for (int i = 0; i < DirContents.size(); i++)
+        {
+          if (DirContents[i].substr(0, LastLen) == Last)
+            Match.push_back(i);
+        }
+        if (Match.size() < 1)
+          break;
+        else if (Match.size() == 1)
+        {
+          fprintf(stdout, "\033[%dD", LastLen);
+          fflush(stdout);
+          std::cout << DirContents[Match[0]] << std::flush;
+	  strcpy(Last, DirContents[Match[0]].c_str());
+          NoOfCharTyped += DirContents[Match[0]].size() - LastLen;
+        }
+        break;
       }
 
     };
