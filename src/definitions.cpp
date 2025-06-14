@@ -3,11 +3,11 @@
 
 #include "definitions.h"
 
-void ListDirContents()
+void ListDirContents(std::vector<std::string>& DirFile, const std::string& WorkingDir)
 {
   
-  for (const auto& entry : std::filesystem::directory_iterator(CWD))
-    DirContents.push_back(std::filesystem::relative(entry.path(), CWD).string());
+  for (const auto& entry : std::filesystem::directory_iterator(WorkingDir))
+    DirFile.push_back(std::filesystem::relative(entry.path(), WorkingDir).string());
 
 }
 

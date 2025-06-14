@@ -4,13 +4,20 @@
 #include <errno.h>
 
 #include <vector>
+#include <string>
 #include <iostream>
 #include <cstring>
+#include <filesystem>
 
 
 #include "input.h"
 #include "init.h"
 #include "definitions.h"
+
+
+
+static std::string AccessableDir = "";
+static std::vector<std::string> AccessableDirCont;
 
 
 char ReadKey(){
@@ -90,6 +97,31 @@ int ReadInput(char* Input, int MaxLength)
         std::vector<int> Match; // stores the index value which matches
         if (LastLen == 0)
           break;
+
+        if (AccessableDir != "")
+        {
+          ListDirContents(AccessableDirCont, AccessableDir);
+            
+          for (int i = 0; i < DirContents.size(); i++)
+          {
+            if (AccessableDirCont[i].substr(0, LastLen) == Last)
+              Match.push_back(i);
+          }
+          if (Match.size() < 1)
+            break;
+          else if (Match.size() == 1)
+          {
+            if (std::filesystem::is_directory(AccessableDirCont[Match[0]]))
+              AccessableDir += AccessableDirCont[Match[0]];
+            fprintf(stdout, "\033[%dD", LastLen - 1);
+            fflush(stdout);
+            std::cout << AccessableDirCont[Match[0]] << std::flush;
+            strcpy(Last, AccessableDirCont[Match[0]].c_str());
+            NoOfCharTyped += AccessableDirCont[Match[0]].size() - LastLen + 1;
+          }
+          break;
+        }
+
         for (int i = 0; i < DirContents.size(); i++)
         {
           if (DirContents[i].substr(0, LastLen) == Last)
@@ -99,10 +131,12 @@ int ReadInput(char* Input, int MaxLength)
           break;
         else if (Match.size() == 1)
         {
+          if (std::filesystem::is_directory(DirContents[Match[0]]))
+            AccessableDir = std::string(CWD) + DirContents[Match[0]];
           fprintf(stdout, "\033[%dD", LastLen);
           fflush(stdout);
           std::cout << DirContents[Match[0]] << std::flush;
-	  strcpy(Last, DirContents[Match[0]].c_str());
+          strcpy(Last, DirContents[Match[0]].c_str());
           NoOfCharTyped += DirContents[Match[0]].size() - LastLen;
         }
         break;
@@ -111,5 +145,5 @@ int ReadInput(char* Input, int MaxLength)
     };
 
   }
-
+  AccessableDir = "";
 }

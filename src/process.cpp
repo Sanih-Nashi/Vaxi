@@ -103,7 +103,8 @@ void Execute()
 
     strcpy(CWD, std::filesystem::current_path().c_str());
     DirContents.clear();
-    ListDirContents();
+    ListDirContents(DirContents, CWD);
+
 
 
     return;
