@@ -14,11 +14,12 @@
 inline int NoOfCharTyped;
 inline bool InsideSingleQuotes;
 inline bool InsideDoubleQuotes;
+
 inline char CWD[MAX_INPUT];
 inline std::vector<std::string> DirContents;
 
 // List the contents of the current dir
 void ListDirContents(std::vector<std::string>& DirFile, const std::string& WorkingDir);
 
-// gives the last word of a cstringy
-char* LastWord(char* str);
+// gives the last word of a string along with the RelativePath
+bool LastWordAndRelativePath(char* str, char** LastWord, char** RelativeDirPath);

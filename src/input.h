@@ -2,4 +2,4 @@
 
 
 char ReadKey();
-int ReadInput(char* Input, int MaxLength);
+int ReadInput(char* Input, int Input_MaxLength);

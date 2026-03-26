@@ -12,7 +12,7 @@
 #include <cstdlib>
 #include <cstring>
 
-static char buffer[MAX_INPUT];
+static char buffer[MAX_INPUT]; // just stores the input value then it is copied to argv[x]
 
 void Parse(char* Input)
 {
@@ -66,6 +66,7 @@ void Parse(char* Input)
   buffer[BufferPtr] = '\0';
   if (BufStrlen != 0)
   {
+  	
     argv[argc] = (char*) realloc(argv[argc], BufStrlen + 1); // + 1 so that in includes the null termination char
     strcpy(argv[argc++], buffer);
   }
@@ -79,18 +80,28 @@ void Parse(char* Input)
 void Execute()
 {
 
+
   if (*argv[0] == '\0')
     return;
 
+
+
   if (strcmp(argv[0], "exit") == 0)
+  {
+  	for (int i = 0; i < MAX_INPUT; i++)
+  	  free(argv[i]);
     exit(1);
+  }
+
 
   else if (strcmp(argv[0], "cd") == 0)
   {
 
     if (argv[1] == NULL)
+    {
       fprintf(stderr, "Vx: NO file name mentioned for cd");
-
+	  return;
+	}
 
     std::error_code ec;
     std::filesystem::current_path(argv[1], ec);
@@ -113,6 +124,7 @@ void Execute()
 
   DisableRawMode();
 
+  // from this point onwards if any issue arises on its readability, blame ChatGPT
 
   pid_t pid = fork();
 
