@@ -4,16 +4,15 @@ project(vaxi)
 
 message(STATUS "Building ${PROJECT_NAME}")
 
-# You may need to specify the path to your source files.
 message(STATUS "File: ${CPP_FILE}")
 
-# Set the C++ version to C++23 (recommended approach)
+# Set the C++ version to C++23
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_EXTENSIONS OFF)  # Optional: Disable compiler-specific extensions like `gnu++`
+#set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Define your target
-add_executable(${PROJECT_NAME} src/main.cpp src/init.cpp src/input.cpp src/process.cpp src/raw_mode.cpp src/definitions.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/init.cpp src/input.cpp src/parse_and_execute.cpp src/raw_mode.cpp src/definitions.cpp)
 
 # Apply the compile options (target-specific)
 target_compile_options(${PROJECT_NAME} PRIVATE 

@@ -1,11 +1,21 @@
 #pragma once
 
 #define MAX_INPUT 1024
+
+// keys
 #define ENTER_KEY 13
 #define BACKSPACE 8
 #define DEL_KEY 127
 #define SPACE_KEY 32
 #define TAB 9
+
+// Function return values
+
+#define PROGRAMME_EXIT 1 // returning this value will result in termination
+#define USER_ERROR_EXIT 0 // as we just reset the terminal in this case
+#define NORMAL_EXIT 0
+
+
 
 #include <vector>
 #include <string>
@@ -16,6 +26,11 @@ inline bool InsideSingleQuotes;
 inline bool InsideDoubleQuotes;
 
 inline char CWD[MAX_INPUT];
+
+inline char* User;
+inline char Input[MAX_INPUT];
+
+
 inline std::vector<std::string> DirContents;
 
 // List the contents of the current dir

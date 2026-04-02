@@ -1,6 +1,6 @@
 #include "init.h"
 #include "input.h"
-#include "process.h"
+#include "parse_and_execute.h"
 
 #include <stdlib.h>
 
@@ -14,6 +14,10 @@ int main()
     if (ReadInput(Input, MAX_INPUT) == EXIT_FAILURE)
       continue;
     Parse(Input);
-    Execute();
+    if (Execute() == PROGRAMME_EXIT)
+      break;
   }
+
+  return 0;
+  
 }

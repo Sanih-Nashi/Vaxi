@@ -7,4 +7,4 @@ inline char* argv[MAX_INPUT] = {NULL};
 inline int argc;
 
 void Parse(char *Input);
-void Execute();
+int Execute();

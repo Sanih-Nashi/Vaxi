@@ -1,4 +1,4 @@
-#include "process.h"
+#include "parse_and_execute.h"
 #include "init.h"
 #include "raw_mode.h"
 #include "definitions.h"
@@ -77,12 +77,12 @@ void Parse(char* Input)
 
 
 
-void Execute()
+int Execute()
 {
 
 
   if (*argv[0] == '\0')
-    return;
+    return NORMAL_EXIT;
 
 
 
@@ -90,7 +90,7 @@ void Execute()
   {
   	for (int i = 0; i < MAX_INPUT; i++)
   	  free(argv[i]);
-    exit(1);
+    return PROGRAMME_EXIT;
   }
 
 
@@ -100,7 +100,7 @@ void Execute()
     if (argv[1] == NULL)
     {
       fprintf(stderr, "Vx: NO file name mentioned for cd");
-	  return;
+	  return USER_ERROR_EXIT;
 	}
 
     std::error_code ec;
@@ -109,7 +109,7 @@ void Execute()
     if (ec)
     {
       fprintf(stderr, "Vx: cannot cd into %s\n\r", argv[1]);
-      return;
+      return USER_ERROR_EXIT;
     }
 
     strcpy(CWD, std::filesystem::current_path().c_str());
@@ -118,7 +118,7 @@ void Execute()
 
 
 
-    return;
+    return NORMAL_EXIT;
 
   }
 
@@ -136,7 +136,7 @@ void Execute()
     execvp(argv[0], argv);
 
     fprintf(stderr, "Vx: cannot identify the command %s", argv[0]);
-    exit(EXIT_FAILURE);
+    return PROGRAMME_EXIT;
   } 
   else {
       // Parent process
@@ -146,6 +146,7 @@ void Execute()
 
 
   EnableRawMode();
+  return NORMAL_EXIT;
 
 }
 
