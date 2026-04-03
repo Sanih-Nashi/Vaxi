@@ -1,7 +1,6 @@
-# Vx-Cross
+# Vaxi
 ## About
-Vx-Cross is a cross-platform version of the shell Vx (made for linux) in c++.
-This shell enables us to run system commands and inbuilt-shell commands (such as cd, exit etc)
+Vaxi is an improved version of the terminal Vx. It is made for linux and can be used for doing most of the daily tasks
 
 # Build
-This project is build through cmake, no external libraries are used and can be run straight out of the box.
+This project is build through cmake, no external libraries are used.
