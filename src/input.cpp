@@ -24,7 +24,7 @@ char ReadKey(){
   {
     if (read_num == -1 && errno != EAGAIN)
     {
-      perror("read");
+      std::perror("read");
       exit(1);
     }
   }
@@ -32,7 +32,7 @@ char ReadKey(){
 }
 
 
-int ReadInput(char* Input, int Input_MaxLength)
+int ReadInput(std::string& Input)
 {
   char c;
   std::string InspectingDir = CWD; 
@@ -51,16 +51,9 @@ int ReadInput(char* Input, int Input_MaxLength)
     if (32 <= c && c <= 126)
     {
 
-
-	// TODO: make it to take any amount inputs (sorry I made a bad base when starting and I'm lazy lol)
-
-      if (NoOfCharTyped >= Input_MaxLength) // checks whether the input excedes the limit of the array
-        continue;
-            
-      printf("%c", c);
-      fflush(stdout);
-      NoOfCharTyped++;
-      Input[NoOfCharTyped - 1] = c;
+      std::cout <<c <<std::flush;      
+      NoOfCharTyped++;  // TODO: remove NoOfCharTyped Completely
+      Input.push_back(c);
 
       continue;
     }
@@ -72,19 +65,12 @@ int ReadInput(char* Input, int Input_MaxLength)
 
       case ENTER_KEY:
       {
-        printf("\n\r");
-        fflush(stdout);
-
-        if (NoOfCharTyped >= Input_MaxLength)
-        {
-          NoOfCharTyped = 0;
-          fprintf(stderr, "Vx: The command typed exceded the max characters of 1024\n\r    Try again with fewer lines\n\r");
-          return EXIT_FAILURE;
-        }
-
-        Input[NoOfCharTyped] = '\0';  // giving it an endline charactor immediately after the command in the array
+      
+		std::cout << "\n\r" <<std::flush;
+        Input.push_back('\0');  // giving it an endline charactor immediately after the command in the array
         NoOfCharTyped = 0;
         return EXIT_SUCCESS;
+        
       }
 
       case BACKSPACE:
@@ -92,10 +78,11 @@ int ReadInput(char* Input, int Input_MaxLength)
       {
         if (NoOfCharTyped > 0)
         {
-
-          printf("\b \b");
-          fflush(stdout);
+        
+		  std::cout <<"\b \b" <<std::flush;
           NoOfCharTyped--;
+          Input.pop_back();
+          
         }
         break;
       }
@@ -111,6 +98,7 @@ int ReadInput(char* Input, int Input_MaxLength)
       	
         Input[NoOfCharTyped] = '\0'; // making the last char null termination
 
+        // TODO: Change the c-style pointer upproach to more c++ way
         char* LastWord;
         char* RelativePathDir;
         int LastWordLen;
@@ -118,38 +106,45 @@ int ReadInput(char* Input, int Input_MaxLength)
 
 		// last word here is the last word of the command Ex:- cd Vx-Cross/bui, here it is "bui"
 		// relative path will get "Vx-Cross/" out of the above command
-        if (!LastWordAndRelativePath(Input, &LastWord, &RelativePathDir))
+        if (!LastWordAndRelativePath(const_cast<char*>(Input.c_str()), &LastWord, &RelativePathDir))
           continue;
 
         LastWordLen = strlen(LastWord);
 
         if (RelativePathDir != nullptr)
         {
-          InspectingDir = std::string(CWD) + "/" + std::string(RelativePathDir);
-          free(RelativePathDir);
+          InspectingDir = CWD + "/" + std::string(RelativePathDir);
+          free((void*)RelativePathDir);
         }
 	
 
+        // matching the file user typed incompletely and wanted it to autocompleted to the directory.
 		std::vector<std::string> FileMatch;
 		for (const auto& DirContent : std::filesystem::directory_iterator{std::filesystem::path(InspectingDir)})
 		{
 
-		    std::string MatchedFile = DirContent.path().filename().string();
-			if (MatchedFile.substr(0, LastWordLen) == std::string(LastWord))
-			{
-              if (std::filesystem::is_directory(std::filesystem::path(MatchedFile)))
-                FileMatch.push_back(MatchedFile + "/");
-              else
-			    FileMatch.push_back(MatchedFile);              
-			} 	
+		  std::string MatchedFile = DirContent.path().filename().string();
+	      if (MatchedFile.substr(0, LastWordLen) == std::string(LastWord))
+	      {
+	      
+            if (std::filesystem::is_directory(std::filesystem::path(MatchedFile)))
+              FileMatch.push_back(MatchedFile + "/");
+              
+            else
+	          FileMatch.push_back(MatchedFile); 
+	                       
+		  } 	
 		}
 
 		if (FileMatch.size() == 1)
 		{
-			std::string RemainingStr = FileMatch[0].substr(LastWordLen);
-			std::cout << RemainingStr <<std::flush;
-			strcat(Input, RemainingStr.c_str());
-			NoOfCharTyped += RemainingStr.size();
+		  // autocompleting the last word
+	      std::string RemainingStr = FileMatch[0].substr(LastWordLen);
+		  std::cout << RemainingStr <<std::flush;
+		  
+		  Input += RemainingStr;
+	      NoOfCharTyped += RemainingStr.size();
+			
 		}
 		else if (FileMatch.size() == 0)
 		{
@@ -177,7 +172,7 @@ int ReadInput(char* Input, int Input_MaxLength)
 		  	  	{
 		  	  	  IsCharSame = false;
 		  	  	  std::string RemainingCommonStr = File.substr(LastWordLen, i - LastWordLen);
-		  	  	  strcat(Input, RemainingCommonStr.c_str());
+		  	  	  Input += RemainingCommonStr;
 		  	  	  std::cout <<RemainingCommonStr <<std::flush;
 		  	  	  NoOfCharTyped += i - LastWordLen;
 		  	  	  break;
@@ -188,15 +183,14 @@ int ReadInput(char* Input, int Input_MaxLength)
 
 		  // prints the matched files in the next line, and then prints the prompt and the
 		  // written command again for the user to complete the command
-          printf("\n\r");
-		  fflush(stdout);
+		  std::cout <<"\n\r" <<std::flush;
 
 		  for (const std::string& MatchedFile : FileMatch)
 		    std::cout <<"  " <<MatchedFile <<std::flush;
+		  std::cout <<"\n\r" <<std::flush;
 
 		  PrintPrompt();
-		  printf("%s", Input);
-		  fflush(stdout);
+		  std::cout <<Input <<std::flush;
 
 		  
 		}

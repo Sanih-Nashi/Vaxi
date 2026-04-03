@@ -7,16 +7,26 @@
 
 int main()
 {
+
+
   InitTermianal();
+
   while(true)
   { 
+  
     PrintPrompt();
-    if (ReadInput(Input, MAX_INPUT) == EXIT_FAILURE)
+    
+    if (ReadInput(Input) == EXIT_FAILURE)
       continue;
+      
     Parse(Input);
+    
     if (Execute() == PROGRAMME_EXIT)
       break;
+      
   }
+
+
 
   return 0;
   

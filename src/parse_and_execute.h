@@ -1,10 +1,12 @@
 #pragma once
 
 #include <cstddef>
+#include <vector>
+#include <string>
 #include "init.h"
 
-inline char* argv[MAX_INPUT] = {NULL};
+inline std::vector<std::string> argv;
 inline int argc;
 
-void Parse(char *Input);
+void Parse(std::string& Input);
 int Execute();

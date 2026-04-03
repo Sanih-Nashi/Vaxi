@@ -1,5 +1,11 @@
 #pragma once
 
+
+#include <vector>
+#include <string>
+
+
+
 #define MAX_INPUT 1024
 
 // keys
@@ -17,18 +23,15 @@
 
 
 
-#include <vector>
-#include <string>
-
 // the number of characters typed
 inline int NoOfCharTyped;
 inline bool InsideSingleQuotes;
 inline bool InsideDoubleQuotes;
 
-inline char CWD[MAX_INPUT];
+inline std::string CWD;
 
-inline char* User;
-inline char Input[MAX_INPUT];
+inline std::string User;
+inline std::string Input;
 
 
 inline std::vector<std::string> DirContents;

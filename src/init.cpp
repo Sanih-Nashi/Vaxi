@@ -17,10 +17,12 @@
 void InitTermianal()
 {
   User = std::getenv("USER");  
-  strcpy(CWD, std::filesystem::current_path().c_str());
+  CWD = std::filesystem::current_path();
   ListDirContents(DirContents, CWD);
   
-  printf("\033[H\033[2J"); //clears screen and puts cursor on top
+  // printf("\033[H\033[2J"); //clears screen and puts cursor on top
+  std::cout <<"\033[H\033[2J";
+
 
   InitRawMode();
   EnableRawMode();
@@ -30,22 +32,23 @@ void InitTermianal()
 void PrintPrompt()
 {
 
-  printf("\r\n\033[34m%s\033[0m&\033[34mVx\033[0m::\n\r::\033[32m", User);
+  std::cout <<"\r\n\033[34m" << User <<"\033[0m&\033[34mVx\033[0m::\n\r::\033[32m";
+
 
   for (int i = 0; CWD[i] != '\0'; i++)
   {
 
     if (CWD[i] == '/')
     {
-      printf("\033[0m/\033[32m");
+      std::cout <<"\033[0m/\033[32m";
       continue;
     }
 
 
-    printf("%c", CWD[i]);
+    std::cout <<CWD[i];
   }
-  printf("\033[0m->");
-  fflush(stdout);
+
+  std::cout << "\033[0m->" <<std::flush;
   
 }
 

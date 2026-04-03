@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 
 char ReadKey();
-int ReadInput(char* Input, int Input_MaxLength);
+int ReadInput(std::string& Input);

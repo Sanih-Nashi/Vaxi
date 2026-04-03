@@ -11,68 +11,82 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 
-static char buffer[MAX_INPUT]; // just stores the input value then it is copied to argv[x]
+//static char buffer[MAX_INPUT]; // just stores the input value then it is copied to argv[x]
 
-void Parse(char* Input)
+void Parse(std::string& Input)
 {
 
-  if (Input == NULL)
+  if (Input == "")
     return;
 
+  // used for Execute() to number out the number of arguments
   argc = 0;
+
   
   int BufferPtr = 0;
-  int BufStrlen;
-  int i = 0;
-  for (; Input[i] != '\0'; i++)
+  int BuffStartIndex = 0;
+  for (int i = 0; Input[i] != '\0'; i++)
   {
     if (Input[i] == ' ')
     {
-      buffer[BufferPtr] = '\0';
-      BufStrlen = strlen(buffer);
-      if (BufStrlen == 0)
+      if (BufferPtr == 0)
         continue;
-      argv[argc] = (char*) realloc(argv[argc], BufStrlen + 1 + 1); // '+ 1' to include the null termination char
-      strcpy(argv[argc++], buffer);
+        
+      argv.push_back(Input.substr(BuffStartIndex, BufferPtr)); // pushing the part of the input which is an argument
+      argc++; //TODO: remove argc completely
+      BuffStartIndex = i + 1; // because i points to the space we will make the new start index i + 1
       BufferPtr = 0;
+      
       continue;
     }
 
     else if (Input[i] == '\'')
     {
-      i++;
+      Input.erase(i, 1);
       for (; Input[i] != '\'' && Input[i] != '\0'; i++)
-        buffer[BufferPtr++] = Input[i];
+        BufferPtr++;
+      if (Input[i] == '\'')
+        Input.erase(i, 1);
+        
         
       continue;
     }
 
     else if (Input[i] == '\"')
     {
-      i++;
+    
+      Input.erase(i, 1);
+      
       for (; Input[i] != '\"' && Input[i] != '\0'; i++)
-        buffer[BufferPtr++] = Input[i];
+        BufferPtr++;
+        
+      if (Input[i] == '\"')
+        Input.erase(i, 1);
+      
       continue;
+      
     }
 
     else if (Input[i] == '\\')
-      i++;
+      Input.erase(i, 1);
 
-    buffer[BufferPtr++] = Input[i];
+    BufferPtr++;
     
   }
-  BufStrlen = strlen(buffer);
-  buffer[BufferPtr] = '\0';
-  if (BufStrlen != 0)
+
+  
+  if (BufferPtr != 0)
   {
-  	
-    argv[argc] = (char*) realloc(argv[argc], BufStrlen + 1); // + 1 so that in includes the null termination char
-    strcpy(argv[argc++], buffer);
+  
+    argv.push_back(Input.substr(BuffStartIndex, BufferPtr));
+    argc++;
+    
   }
-  argv[argc] = NULL;
-
-
+  
+  Input.clear();  //TODO: place the initialization and clear() of input inside the main()
+  
 }
 
 
@@ -81,64 +95,86 @@ int Execute()
 {
 
 
-  if (*argv[0] == '\0')
-    return NORMAL_EXIT;
-
-
-
-  if (strcmp(argv[0], "exit") == 0)
+  if (argv.size() == 0)
   {
-  	for (int i = 0; i < MAX_INPUT; i++)
-  	  free(argv[i]);
+    argv.clear();
+    return NORMAL_EXIT;
+  }
+
+
+  if (argv[0] == "exit")
+  { 
+    argv.clear();
     return PROGRAMME_EXIT;
   }
 
 
-  else if (strcmp(argv[0], "cd") == 0)
+  else if (argv[0] == "cd")
   {
 
-    if (argv[1] == NULL)
-    {
-      fprintf(stderr, "Vx: NO file name mentioned for cd");
-	  return USER_ERROR_EXIT;
-	}
-
+  
+  	if (argv.size() == 1)
+  	{
+      std::cerr << "Vx: No file name mentioned for cd";
+      argv.clear();
+      return USER_ERROR_EXIT;
+  	}
+  
     std::error_code ec;
     std::filesystem::current_path(argv[1], ec);
 
     if (ec)
     {
-      fprintf(stderr, "Vx: cannot cd into %s\n\r", argv[1]);
+    
+      std::cerr <<"Vx: Cannot cd into " << argv[1] <<"\n\r";
+      argv.clear();
       return USER_ERROR_EXIT;
+      
     }
 
-    strcpy(CWD, std::filesystem::current_path().c_str());
-    DirContents.clear();
-    ListDirContents(DirContents, CWD);
+	CWD = std::filesystem::current_path();
+	DirContents.clear();
+	ListDirContents(DirContents, CWD);
 
 
-
+    argv.clear();
     return NORMAL_EXIT;
 
   }
 
+
+
+  // executing the command
+
   DisableRawMode();
 
-  // from this point onwards if any issue arises on its readability, blame ChatGPT
+  // changing argv into a cstyle char* array
+  std::vector<char*> CstyleArgv;
+  CstyleArgv.reserve(argv.size() + 1);
+  
+  for (const std::string& str : argv)
+    CstyleArgv.emplace_back(const_cast<char*>(str.c_str()));
+  CstyleArgv.push_back(NULL);
+
+  argv.clear();
+
+  
 
   pid_t pid = fork();
 
   if (pid < 0)
-    perror("Vx: Error, resource unavailable currently");
+    std::perror("Vx: Error, resource unavailable currently");
 
-  else if (pid == 0) {
+  else if (pid == 0)
+  {
 
-    execvp(argv[0], argv);
+    execvp(CstyleArgv[0], CstyleArgv.data());
 
-    fprintf(stderr, "Vx: cannot identify the command %s", argv[0]);
+    std::cerr << "Vx: Cannot identify the command " << argv[0];
     return PROGRAMME_EXIT;
   } 
-  else {
+  else 
+  {
       // Parent process
       int status;
       waitpid(pid, &status, 0);
