@@ -2,15 +2,17 @@
 #include "input.h"
 #include "parse_and_execute.h"
 
-#include <stdlib.h>
+#include <string>
+#include <vector>
 
 
 int main()
 {
 
+  std::string Input;
+  std::vector<std::string> argv;
 
-  InitTermianal();
-
+  InitTermianal();  
   while(true)
   { 
   
@@ -19,11 +21,12 @@ int main()
     if (ReadInput(Input) == EXIT_FAILURE)
       continue;
       
-    Parse(Input);
-    
-    if (Execute() == PROGRAMME_EXIT)
+    Parse(Input, argv);
+    Input.clear();
+        
+    if (Execute(argv) == PROGRAMME_EXIT)
       break;
-      
+    argv.clear();      
   }
 
 

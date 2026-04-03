@@ -5,8 +5,6 @@
 #include <string>
 #include "init.h"
 
-inline std::vector<std::string> argv;
-inline int argc;
 
-void Parse(std::string& Input);
-int Execute();
+void Parse(std::string& Input, std::vector<std::string>& argv);
+int Execute(std::vector<std::string>& argv);

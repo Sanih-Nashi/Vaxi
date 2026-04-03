@@ -18,7 +18,6 @@ void InitTermianal()
 {
   User = std::getenv("USER");  
   CWD = std::filesystem::current_path();
-  ListDirContents(DirContents, CWD);
   
   // printf("\033[H\033[2J"); //clears screen and puts cursor on top
   std::cout <<"\033[H\033[2J";

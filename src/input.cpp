@@ -15,6 +15,9 @@
 #include "definitions.h"
 
 
+// TODO: * make it recieve multilined input
+//       * make the autocorrect work with multilined corrections
+
 
 
 char ReadKey(){
@@ -52,7 +55,6 @@ int ReadInput(std::string& Input)
     {
 
       std::cout <<c <<std::flush;      
-      NoOfCharTyped++;  // TODO: remove NoOfCharTyped Completely
       Input.push_back(c);
 
       continue;
@@ -68,7 +70,6 @@ int ReadInput(std::string& Input)
       
 		std::cout << "\n\r" <<std::flush;
         Input.push_back('\0');  // giving it an endline charactor immediately after the command in the array
-        NoOfCharTyped = 0;
         return EXIT_SUCCESS;
         
       }
@@ -76,11 +77,10 @@ int ReadInput(std::string& Input)
       case BACKSPACE:
       case DEL_KEY:
       {
-        if (NoOfCharTyped > 0)
+        if (Input.size() > 0)
         {
         
 		  std::cout <<"\b \b" <<std::flush;
-          NoOfCharTyped--;
           Input.pop_back();
           
         }
@@ -93,29 +93,24 @@ int ReadInput(std::string& Input)
       {
 
       
-      	if (NoOfCharTyped ==0)
+      	if (Input.size() == 0)
       	  continue;
       	
-        Input[NoOfCharTyped] = '\0'; // making the last char null termination
-
         // TODO: Change the c-style pointer upproach to more c++ way
-        char* LastWord;
-        char* RelativePathDir;
+        std::string LastWord;
+        std::string RelativePathDir;
         int LastWordLen;
 
 
 		// last word here is the last word of the command Ex:- cd Vx-Cross/bui, here it is "bui"
 		// relative path will get "Vx-Cross/" out of the above command
-        if (!LastWordAndRelativePath(const_cast<char*>(Input.c_str()), &LastWord, &RelativePathDir))
+        if (!LastWordAndRelativePath(Input, LastWord, RelativePathDir))
           continue;
 
-        LastWordLen = strlen(LastWord);
+        LastWordLen = LastWord.size();
 
-        if (RelativePathDir != nullptr)
-        {
-          InspectingDir = CWD + "/" + std::string(RelativePathDir);
-          free((void*)RelativePathDir);
-        }
+        if (RelativePathDir != "")
+          InspectingDir = CWD + "/" + RelativePathDir;
 	
 
         // matching the file user typed incompletely and wanted it to autocompleted to the directory.
@@ -124,7 +119,7 @@ int ReadInput(std::string& Input)
 		{
 
 		  std::string MatchedFile = DirContent.path().filename().string();
-	      if (MatchedFile.substr(0, LastWordLen) == std::string(LastWord))
+	      if (MatchedFile.substr(0, LastWordLen) == LastWord)
 	      {
 	      
             if (std::filesystem::is_directory(std::filesystem::path(MatchedFile)))
@@ -143,7 +138,6 @@ int ReadInput(std::string& Input)
 		  std::cout << RemainingStr <<std::flush;
 		  
 		  Input += RemainingStr;
-	      NoOfCharTyped += RemainingStr.size();
 			
 		}
 		else if (FileMatch.size() == 0)
@@ -174,7 +168,6 @@ int ReadInput(std::string& Input)
 		  	  	  std::string RemainingCommonStr = File.substr(LastWordLen, i - LastWordLen);
 		  	  	  Input += RemainingCommonStr;
 		  	  	  std::cout <<RemainingCommonStr <<std::flush;
-		  	  	  NoOfCharTyped += i - LastWordLen;
 		  	  	  break;
 		  	  	}
 		  	  }

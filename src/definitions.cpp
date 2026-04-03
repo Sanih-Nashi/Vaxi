@@ -1,82 +1,84 @@
 #include <filesystem>
 #include <cstring>
+#include <string>
 
 #include "definitions.h"
 
-void ListDirContents(std::vector<std::string>& DirFile, const std::string& WorkingDir)
-{
-  
-  for (const auto& entry : std::filesystem::directory_iterator(WorkingDir))
-    DirFile.push_back(std::filesystem::relative(entry.path(), WorkingDir).string());
 
-}
-
-bool LastWordAndRelativePath(char* str, char** LastWord, char** RelativeDirPath)
+bool LastWordAndRelativePath(const std::string& Input, std::string& LastWord, std::string& RelativeDirPath)
 {
 
 
-  *LastWord = &str[0];
+  // these variables store the index from which LastWord and
+  // and RelativePathDir start from the major string Input
   int LastWordIndex = 0;
   int DirStartIndex = 0;
 
   
-  for (int i = 0; str[i] != '\0'; i++)
+  for (int i = 0; Input[i] != '\0'; i++)
   {
 
   
-    if (str[i] == ' ' && str[i + 1] != '\0' && str[i + 1] != ' ')
+    if (Input[i] == ' ')
     {
     
+      if (Input[i + 1] == '\0' && Input[i + 1] == ' ')
+        continue;
+
+      // setting the lastword and the starting of the dir to the char after lastword
       DirStartIndex = i + 1;
       LastWordIndex = i + 1;
-      *LastWord = &str[LastWordIndex];
       
 	}
 
-	
-	else if (str[i] == '/' && str[i + 1] != '\0' && str[i + 1] != ' ')
-	{
-		
+	// LastWord is set from the character after '/'
+	// while RelativePathDir is set from the '/' itself 
+	else if (Input[i] == '/' && Input[i + 1] != '\0' && Input[i + 1] != ' ')
 	  LastWordIndex = i + 1;
-	  *LastWord = &str[i + 1];
-	  
-	}
 
 
-	else if (str[i] == '"')
+    // goes through the entire string as the part inbetween in
+    // considered the part of the current token
+	else if (Input[i] == '"')
 	{
 	
-		while (str[i] != '"' && str[i] != '\0')
-		  i++;
+	  while (Input[i] != '"' && Input[i] != '\0')
+   	    i++;
 
-		if (str[i] != '"')
-		  return false;
+	  if (Input[i] != '"')
+	    return false;
 
 	}
+
+    // same as the latter
+	else if (Input[i] == '\'')
+	{
+	
+	  while (Input[i] != '\'' && Input[i] != '\0')
+	    i++;
+
+	  if (Input[i] != '\'')
+	    return false;
+
+	}
+
 
 	
   }
+  LastWord = Input.substr(LastWordIndex);
 
   // plus one because the LastWord will always point to the first letter of the word
   // but RelativePath will always point to the first character in the path which necessarily
   // does not need to be a letter like it can be "/"
   if (LastWordIndex + 1 == DirStartIndex || LastWordIndex == DirStartIndex) 
   {
-	*RelativeDirPath = nullptr;
+	RelativeDirPath = "";
 	return true;
   }
 
-  const int Len = LastWordIndex - DirStartIndex;
-
-  *RelativeDirPath = (char*)malloc(Len + 1); // plus 1 for the null terminator
-  strncpy(*RelativeDirPath, &str[DirStartIndex], Len);
-  (*RelativeDirPath)[Len] = '\0';
+  RelativeDirPath = Input.substr(DirStartIndex);
   
   return true;
-
-
-  // Im so bad at writing code. I am reviewing it a year after I left it untouched
-  // Imma change all of ts
 
 }
 

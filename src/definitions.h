@@ -5,10 +5,7 @@
 #include <string>
 
 
-
-#define MAX_INPUT 1024
-
-// keys
+// keys defined by their ascii
 #define ENTER_KEY 13
 #define BACKSPACE 8
 #define DEL_KEY 127
@@ -23,21 +20,11 @@
 
 
 
-// the number of characters typed
-inline int NoOfCharTyped;
-inline bool InsideSingleQuotes;
-inline bool InsideDoubleQuotes;
-
 inline std::string CWD;
 
 inline std::string User;
-inline std::string Input;
 
-
-inline std::vector<std::string> DirContents;
-
-// List the contents of the current dir
-void ListDirContents(std::vector<std::string>& DirFile, const std::string& WorkingDir);
 
 // gives the last word of a string along with the RelativePath
-bool LastWordAndRelativePath(char* str, char** LastWord, char** RelativeDirPath);
+// bool LastWordAndRelativePath(char* str, char** LastWord, char** RelativeDirPath);
+bool LastWordAndRelativePath(const std::string& str, std::string& LastWord, std::string& RelativeDirPath);
